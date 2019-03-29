@@ -1,0 +1,64 @@
+---
+title: "Application of NMF-EM algorithm to travelers profiles data"
+author: "Léna Carel"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{NMFEM_for_travelers}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This vignette contains a short script showing the methodology used in Simultaneous "Dimension Reduction and Clustering via the NMF-EM Algorithm" (Léna Carel and Pierre Alquier, 2017, <arxiv:1709.03346>).
+
+```{r, eval=FALSE}
+library(nmfem)
+```
+
+# Data loading
+Part of the data used in the article are in the `nmfem` package. In this step, we separate the travelers ID from their profiles. IDs are saved, while profiles (that are numeric data) will be used to cluster the travelers through their temporal habits. For more details on the data or the methodology, please see the article.
+
+```{r, eval = FALSE}
+ID <- travelers[ ,1]
+travelers <- travelers[ ,-1]
+```
+
+# Model selection
+In order to chose the optimal parameters $H$ (number of words) and $K$ (number of clusters) we proceed to a model selection. This step is quite long (one to two hours).
+```{r, eval = FALSE}
+nmfem_mult_modelselection(travelers, save = TRUE)
+```
+
+By slope heuristic method, we obtained the optimal values `K = 10` and `H = 5`.
+
+# Results
+Thanks to the option `save = TRUE` in the model selection function, we don't need to run the `nmfem_mult` function and just got to load the matrices from the optimal model.
+```{r, eval=FALSE}
+K = 10
+H = 5
+
+load(file = paste0("Matrices/Matrices_H",H,"_K",K,".RData"))
+```
+
+We can now display the different words and clusters.
+```{r,eval=FALSE}
+
+profiles <- as.data.frame(t(Theta %*% Lambda))
+
+display_profile(profiles[1, ], language = "en")
+display_profile(profiles[2, ], language = "en")
+display_profile(profiles[3, ], language = "en")
+display_profile(profiles[4, ], language = "en")
+display_profile(profiles[5, ], language = "en")
+display_profile(profiles[6, ], language = "en")
+display_profile(profiles[7, ], language = "en")
+display_profile(profiles[8, ], language = "en")
+display_profile(profiles[9, ], language = "en")
+display_profile(profiles[10, ], language = "en")
+
+display_profile(t(Theta[ ,1]), color = "Purples", language = "en")
+display_profile(t(Theta[ ,2]), color = "PuRd", language = "en")
+display_profile(t(Theta[ ,3]), color = "Oranges", language = "en")
+display_profile(t(Theta[ ,4]), color = "Reds", language = "en")
+display_profile(t(Theta[ ,5]), color = "Greens", language = "en")
+```

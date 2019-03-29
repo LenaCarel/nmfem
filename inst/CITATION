@@ -1,0 +1,15 @@
+citHeader("To cite nmfem in publications use:")
+
+citEntry(entry = "Unpublished",
+  title        = "Simultaneous Dimension Reduction and Clustering via the NMF-EM Algorithm",
+  author       = personList(as.person("Léna Carel"),
+                   as.person("Pierre Alquier")),
+  year         = "2017",
+  url          = "https://arxiv.org/pdf/1709.03346.pdf",
+  note         = "Submitted on 2017/11/02",
+
+  textVersion  =
+  paste("Léna Carel, Pierre Alquier (2017).",
+        "Simultaneous Dimension Reduction and Clustering via the NMF-EM Algorithm.",
+        "URL https://arxiv.org/pdf/1709.03346.pdf.")
+)
