@@ -21,17 +21,21 @@
 #' @export
 
 loglik_mult <- function(X, Theta, Lambda = NULL, p){
-
+  
   H <- ncol(Theta)
   if(is.null(Lambda)) Lambda <- diag(nrow = H, ncol = H)
-
+  
   lTL <- log(Theta %*% Lambda)
   lTL[lTL == -Inf] <- 0
-  Mat <- exp(X %*% lTL)
-  out_mat <- log(Mat %*% p)
+  
+  Mat = X %*% lTL
+  rowmax_Mat = apply(Mat, 1, max)
+  
+  Mat = exp(Mat - rowmax_Mat)
+  out_mat <- log( Mat %*% p)
   out_mat[out_mat == -Inf] <- 0
-  output <- sum(out_mat)
-
+  output <- sum(out_mat) + sum(rowmax_Mat)
+  
   return(output)
 }
 
