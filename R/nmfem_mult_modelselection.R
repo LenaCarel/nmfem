@@ -1,9 +1,7 @@
 #' Model selection in NMF-EM algorithm for mixture of multinomials
 #'
 #' The function proceed to a model selection with NMF-EM algorithm on mixture of multinomials dataset.
-#' First, the function plots the log-likelihood in function of K.
-#' Second, log-likelihood is plotted in function of H.
-#' We recommend the user to choose K and H by slope heuristic method.
+#' The function use the automated dimension jump approach implemented in the capushe package.
 #'
 #' @param X numeric matrix containing multinomials observations of dimension \code{N} (number of observation) \code{x M} (number of variables).
 #' @param maxK integer. Maximum number of clusters to be tested. By default, function tests from 2 to 30 clusters.
@@ -17,6 +15,7 @@
 #' }
 #' @importFrom grDevices dev.copy dev.off png
 #' @importFrom graphics plot
+#' @importFrom capushe Djump
 #' @export
 
 nmfem_mult_modelselection <- function(X, maxK = 30, save = FALSE, path = "."){
@@ -35,6 +34,7 @@ nmfem_mult_modelselection <- function(X, maxK = 30, save = FALSE, path = "."){
   }
 
   mllh <- as.data.frame(matrix(nrow = maxK, ncol = maxK))
+  comp <- as.data.frame(matrix(nrow = maxK, ncol = maxK))
 
   # Selection of K
   for(K in 2:maxK){
@@ -43,6 +43,7 @@ nmfem_mult_modelselection <- function(X, maxK = 30, save = FALSE, path = "."){
     if(is.na(mllh[H,K])){
       tmp <- nmfem_mult(X, H, K, init)
       mllh[H,K] <- tmp$llh
+      comp[H,K] <- (length(X) - 1) * H + (H - 1) * K
       if(save){
         Theta <- tmp$Theta
         Lambda <- tmp$Lambda
@@ -53,24 +54,32 @@ nmfem_mult_modelselection <- function(X, maxK = 30, save = FALSE, path = "."){
     }
   }
 
-  plot(x = c(2:maxK), y = diag(as.matrix(mllh[-1,-1])), type = "b",
-       main = "EM likelihood", xlab = "K number of clusters", ylab = "Log-likelihood")
-  if(save){
-    dev.copy(png, paste0(res,"/llh_EM.png"))
-    dev.off()
-  }
+  dividor <- max(diag(as.matrix(comp[-1,-1])), na.rm = TRUE) * 2
+  cap_data_K <- as.data.frame(cbind(paste0("K = ", 2:maxK), # Model name
+                                    diag(as.matrix(comp[-1,-1]))/dividor, # Penalization
+                                    diag(as.matrix(comp[-1,-1])), # Complexity
+                                    -diag(as.matrix(mllh[-1,-1])) # Contrast
+  ))
+  colnames(cap_data_K) <- c("ModName", "Pen", "Comp", "Contrast")
+  cap_data_K <- cap_data_K %>%
+    mutate(
+      Pen = as.numeric(as.character(Pen)),
+      Comp = as.numeric(as.character(Comp)),
+      Contrast = as.numeric(as.character(Contrast))
+    )
 
-  K <- NULL
-  while(is.null(K)){
-    K <- suppressWarnings(as.integer(readline("\n By looking at the plot, what value of K do you choose ? ")))
-    if(is.na(K)) K <- NULL
-  }
+  K <- suppressWarnings(as.numeric(gsub("K = ", "", capushe::Djump(cap_data_K)@model)))
 
-  for(H in (K-1):2){
+  if(K < 11){
+    Kp = 11
+  }else{Kp = K}
+
+  for(H in Kp:2){
     print(paste("H =", H, ", K =", K))
     if(is.na(mllh[H,K])){
       tmp       <- nmfem_mult(X, H, K, init)
       mllh[H,K] <- tmp$llh
+      comp[H,K] <- (length(X) - 1) * H + (H - 1) * K
       if(save){
         Theta     <- tmp$Theta
         Lambda    <- tmp$Lambda
@@ -81,24 +90,23 @@ nmfem_mult_modelselection <- function(X, maxK = 30, save = FALSE, path = "."){
     }
   }
 
-  plot(x = c(2:K), y = mllh[2:K,K], type = "b", main = paste0("NMF-EM likelihood for K = ", K),
-       ylab = "Log-likelihood", xlab = "H number of words")
-  if(save){
-    dev.copy(png, paste0(res,"/llh_K", K, ".png"))
-    dev.off()
-  }
+  dividor <- max(comp[2:Kp,K], na.rm = TRUE) * 2
+  cap_data_H <- as.data.frame(cbind(paste0("H = ", 2:Kp), # Model name
+                                    comp[2:Kp,K]/dividor, # Penalization
+                                    comp[2:Kp,K], # Complexity
+                                    -mllh[2:Kp,K] # Contrast
+  ))
+  colnames(cap_data_H) <- c("ModName", "Pen", "Comp", "Contrast")
+  cap_data_H <- cap_data_H %>%
+    mutate(
+      Pen = as.numeric(as.character(Pen)),
+      Comp = as.numeric(as.character(Comp)),
+      Contrast = as.numeric(as.character(Contrast))
+    )
 
+  H <- suppressWarnings(as.numeric(gsub("H = ", "", capushe::Djump(cap_data_H)@model)))
 
-  H <- NA
-  while(is.na(H)){
-    H <- suppressWarnings(as.integer(readline("\n By looking at the plot, what value of H do you choose ? ")))
-    if(H>=K){
-      answer <- readline("\n You chose H >= K! \n Code will run, but you won't reduce the number of parameters. \n Are you sure you want to keep it that way ? (y/n)")
-      if(toupper(answer)=="N") H <- NA
-    }
-  }
-
-  cat(paste("\n For your data, you chose to select the model with K =",K,"and H =",H,"."))
+  cat(paste("\n For your data, we advise you to select the model with K =",K,"and H =",H,"."))
   cat( "\n" )
   if(save) cat(paste0('You can access corresponding matrices by using load("',mat,'/Matrices_H', H, '_K', K, '.RData")'))
 }

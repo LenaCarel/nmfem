@@ -4,8 +4,15 @@
 \alias{nmfem_mult}
 \title{NMF-EM algorithm for mixture of multinomials}
 \usage{
-nmfem_mult(X, H, K, path = NULL, eps_init = 0.001, eps_M = 1e-08,
-  eps_llh = 1e-05)
+nmfem_mult(
+  X,
+  H,
+  K,
+  path = NULL,
+  eps_init = 0.001,
+  eps_M = 1e-08,
+  eps_llh = 1e-05
+)
 }
 \arguments{
 \item{X}{a matrix containing multinomials observations of dimension \code{N} (number of observation) \code{x M} (number of variables).}

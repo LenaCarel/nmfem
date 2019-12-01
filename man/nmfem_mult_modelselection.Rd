@@ -17,9 +17,7 @@ nmfem_mult_modelselection(X, maxK = 30, save = FALSE, path = ".")
 }
 \description{
 The function proceed to a model selection with NMF-EM algorithm on mixture of multinomials dataset.
-First, the function plots the log-likelihood in function of K.
-Second, log-likelihood is plotted in function of H.
-We recommend the user to choose K and H by slope heuristic method.
+The function use the automated dimension jump approach implemented in the capushe package.
 }
 \examples{
 

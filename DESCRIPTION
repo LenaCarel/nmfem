@@ -1,7 +1,7 @@
 Package: nmfem
 Type: Package
 Title: NMF-EM Algorithm
-Version: 1.0.3
+Version: 1.0.5
 Authors@R: person("Lena", "Carel", email = "lena.carel@gmail.com", role = c("aut", "cre"))
 Depends: R(>= 2.10.0)
 Description: Provides a version of the Expectation-Maximization algorithm for
@@ -11,8 +11,8 @@ Description: Provides a version of the Expectation-Maximization algorithm for
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Imports: plyr, dplyr, d3heatmap, mixtools, tidyr
-RoxygenNote: 6.1.1
+Imports: plyr, dplyr, d3heatmap, mixtools, tidyr, capushe
+RoxygenNote: 7.0.1
 Suggests: knitr, testthat, rmarkdown
 VignetteBuilder: knitr
 NeedsCompilation: no

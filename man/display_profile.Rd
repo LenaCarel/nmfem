@@ -4,8 +4,13 @@
 \alias{display_profile}
 \title{Display 3D profiles}
 \usage{
-display_profile(profile, numclient = FALSE, color = "Blues",
-  language = "en", theme = "dark")
+display_profile(
+  profile,
+  numclient = FALSE,
+  color = "Blues",
+  language = "en",
+  theme = "dark"
+)
 }
 \arguments{
 \item{profile}{a vector or a matrix row containing the profile to display. The day/hour data are contained in the column names.}
